@@ -1,11 +1,10 @@
-#include "stdafx.h"
 #include "State.h"
 #include <stdlib.h>
 #include <assert.h>
 #include "util.h"
 
 
-State::State(int board[9][9] = NULL) {
+State::State(const Board *board = NULL) {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			grids_[i][j] = 0b111111111;
@@ -14,8 +13,8 @@ State::State(int board[9][9] = NULL) {
 	if (board == NULL) return;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			if (board[i][j]) {
-				_AddConstraint(i, j, board[i][j]);
+			if ((*board)[i][j]) {
+				_AddConstraint(i, j, (*board)[i][j]);
 			}
 		}
 	}

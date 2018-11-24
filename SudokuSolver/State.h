@@ -1,8 +1,10 @@
 #pragma once
+#include <array>
+typedef std::array <std::array<int, 3>, 3> Board;
 class State
 {
 public:
-	State(int board[9][9] = NULL);
+	State(const Board *board = NULL);
 	~State();
 	State *AddConstraint(int row, int col, int n);
 	void Print();
