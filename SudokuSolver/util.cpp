@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "util.h"
 
 int NumOfSetBits(int n) {
