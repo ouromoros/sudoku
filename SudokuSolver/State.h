@@ -1,5 +1,4 @@
 #pragma once
-#include <bitset>
 class State
 {
 public:
@@ -11,7 +10,7 @@ public:
 	int *GetGrids();
 private:
 	int grids_[9][9];
-	bool _AddConstraint(int row, int col, int n);
+	void _AddConstraint(int row, int col, int n);
 	bool valid();
 };
 

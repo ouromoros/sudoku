@@ -8,8 +8,8 @@ public:
 	std::vector<int[9][9]> GetSolutions();
 	~Solver();
 private:
-	std::vector<State*> states_;
 	std::vector<int[9][9]> solutions_;
-	void BackTrack(State s);
+	void BackTrack(State *s);
+	int target;
 };
 
