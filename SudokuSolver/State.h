@@ -1,6 +1,5 @@
 #pragma once
 #include <bitset>
-typedef std::bitset<9> Grid;
 class State
 {
 public:
@@ -9,9 +8,9 @@ public:
 	State *AddConstraint(int row, int col, int n);
 	void Print();
 	bool IsComplete();
-	Grid *GetGrids();
+	int *GetGrids();
 private:
-	Grid grids_[9][9];
+	int grids_[9][9];
 	bool _AddConstraint(int row, int col, int n);
 	bool valid();
 };

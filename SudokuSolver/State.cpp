@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "State.h"
 #include <stdlib.h>
+#include "util.h"
 
 
 State::State(int board[9][9] = NULL) {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			grids_[i][j].set();
+			grids_[i][j] = 0b111111111;
 		}
 	}
 	if (board == NULL) return;
@@ -46,7 +47,7 @@ bool State::_AddConstraint(int row, int col, int n) {
 bool State::valid() {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			if (grids_[i][j].none()) {
+			if (grids_[i][j]) {
 				return false;
 			}
 		}
@@ -67,14 +68,14 @@ State *State::AddConstraint(int row, int col, int n) {
 	return new_state;
 }
 
-Grid *State::GetGrids() {
-	return (Grid*)grids_;
+int *State::GetGrids() {
+	return (int*)grids_;
 }
 
 bool State::IsComplete() {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			if (grids_[i][j].count() != 1) {
+			if (NumOfSetBits(grids_[i][j]) != 1) {
 				return false;
 			}
 		}
