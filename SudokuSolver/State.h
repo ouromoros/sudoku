@@ -1,16 +1,18 @@
 #pragma once
+#include <bitset>
+typedef std::bitset<9> Grid;
 class State
 {
 public:
-	State();
-	State(int board[9][9]);
+	State(int board[9][9] = NULL);
 	~State();
-	State AddConstraint(int row, int col, int n);
+	State *AddConstraint(int row, int col, int n);
 	void Print();
 	bool IsComplete();
-	int *GetState();
+	Grid *GetGrids();
 private:
-	int grids_[9][9];
+	Grid grids_[9][9];
 	bool _AddConstraint(int row, int col, int n);
+	bool valid();
 };
 
