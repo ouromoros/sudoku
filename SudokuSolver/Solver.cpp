@@ -2,16 +2,17 @@
 #include "util.h"
 
 using std::vector;
+using std::optional;
 
-Solver::Solver(int num = 1, const Board *board = NULL) {
-	State *init_state = new State(board);
+Solver::Solver(const std::optional<Board> board, int num) {
+	State init_state = State(board);
 	target = num;
 	BackTrack(init_state);
 }
 
-void Solver::BackTrack(State *s) {
-	int *grids = s->GetGrids();
-	if (s->IsComplete()) {
+void Solver::BackTrack(State s) {
+	int *grids = s.GetGrids();
+	if (s.IsComplete()) {
 		Board board;
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
@@ -37,9 +38,9 @@ void Solver::BackTrack(State *s) {
 	for (int i = 0; i < 9; i++) {
 		if (grids[min_pos] & (1 << i)) {
 			int row = min_pos / 9, col = min_pos % 9;
-			State *new_state = s->AddConstraint(row, col, i);
-			if (new_state != NULL) {
-				BackTrack(new_state);
+			optional<State> new_state = s.AddConstraint(row, col, i);
+			if (new_state.has_value()) {
+				BackTrack(*new_state);
 				if (solutions_.size() == target) {
 					return;
 				}

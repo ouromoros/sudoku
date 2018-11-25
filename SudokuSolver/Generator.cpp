@@ -8,8 +8,8 @@ Generator::Generator(int n) {
 }
 vector<Board> Generator::GetBoards() {
 	Board b{};
-	b[0][0] = 7;
-	Solver s(n, &b);
+	b[0][0] = (4 + 1) % 9 + 1;
+	Solver s(b, n);
 	return s.GetSolutions();
 }
 

@@ -1,12 +1,14 @@
 #pragma once
 #include <array>
+#include <optional>
 typedef std::array <std::array<int, 3>, 3> Board;
+
 class State
 {
 public:
-	State(const Board *board = NULL);
+	State(const std::optional<Board> board = {});
 	~State();
-	State *AddConstraint(int row, int col, int n);
+	std::optional<State> AddConstraint(int row, int col, int n);
 	void Print();
 	bool IsComplete();
 	int *GetGrids();

@@ -3,14 +3,15 @@
 #include <assert.h>
 #include "util.h"
 
+using std::optional;
 
-State::State(const Board *board = NULL) {
+State::State(const optional<Board> board) {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			grids_[i][j] = 0b111111111;
 		}
 	}
-	if (board == NULL) return;
+	if (!board.has_value) return;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			if ((*board)[i][j]) {
@@ -24,8 +25,8 @@ State::State(const Board *board = NULL) {
 }
 
 void State::_AddConstraint(int row, int col, int n) {
-	assert(n >= 0 && n < 9);
-	int flag = 1 << n;
+	assert(n >= 1 && n <= 9);
+	int flag = 1 << (n - 1);
 	assert(grids_[row][col] & flag);
 	grids_[row][col] = flag;
 	for (int i = 0; i < 9; i++) {
@@ -58,15 +59,15 @@ bool State::valid() {
 	return true;
 }
 
-State *State::AddConstraint(int row, int col, int n) {
-	State *new_state = new State;
+optional<State> State::AddConstraint(int row, int col, int n) {
+	State new_state;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			new_state->grids_[i][j] = grids_[i][j];
+			new_state.grids_[i][j] = grids_[i][j];
 		}
 	}
-	new_state->_AddConstraint(row, col, n);
-	if (!new_state->valid()) return NULL;
+	new_state._AddConstraint(row, col, n);
+	if (!new_state.valid()) return {};
 	return new_state;
 }
 
