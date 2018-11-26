@@ -85,6 +85,15 @@ void PrintUsage() {
 }
 
 void OutputBoard(ofstream &fout, const Board &b) {
-
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			fout << b[i][j];
+			if (j != 8) {
+				fout << " ";
+			}
+		}
+		fout << endl;
+	}
+	fout << endl;
 }
 

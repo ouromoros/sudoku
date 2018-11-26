@@ -46,8 +46,8 @@ bool State::_AddConstraint(int row, int col, int n) {
 	col_start = col - col % 3;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
-			if (i == row && j == col) continue;
-			grids_[i][j] &= ~(flag);
+			if (row_start + i == row && col_start + j == col) continue;
+			grids_[row_start + i][col_start + j] &= ~(flag);
 		}
 	}
 }

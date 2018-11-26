@@ -38,7 +38,7 @@ void Solver::BackTrack(State s) {
 	for (int i = 0; i < 9; i++) {
 		if (grids[min_pos / 9][min_pos % 9] & (1 << i)) {
 			int row = min_pos / 9, col = min_pos % 9;
-			optional<State> new_state = s.AddConstraint(row, col, i);
+			optional<State> new_state = s.AddConstraint(row, col, i + 1);
 			if (new_state.has_value()) {
 				BackTrack(*new_state);
 				if (solutions_.size() == target) {
