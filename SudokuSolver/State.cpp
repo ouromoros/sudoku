@@ -15,7 +15,9 @@ State::State(const optional<Board> board) {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			if ((*board)[i][j]) {
-				_AddConstraint(i, j, (*board)[i][j]);
+				if (!_AddConstraint(i, j, (*board)[i][j])) {
+					throw "Invalid board!";
+				}
 			}
 		}
 	}
@@ -24,10 +26,12 @@ State::State(const optional<Board> board) {
 	}
 }
 
-void State::_AddConstraint(int row, int col, int n) {
+bool State::_AddConstraint(int row, int col, int n) {
 	assert(n >= 1 && n <= 9);
 	int flag = 1 << (n - 1);
-	assert(grids_[row][col] & flag);
+	if (!(grids_[row][col] & flag)) {
+		return false;
+	}
 	grids_[row][col] = flag;
 	for (int i = 0; i < 9; i++) {
 		if (i == row) continue;
@@ -51,7 +55,7 @@ void State::_AddConstraint(int row, int col, int n) {
 bool State::valid() {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			if (grids_[i][j]) {
+			if (!grids_[i][j]) {
 				return false;
 			}
 		}
@@ -66,13 +70,15 @@ optional<State> State::AddConstraint(int row, int col, int n) {
 			new_state.grids_[i][j] = grids_[i][j];
 		}
 	}
-	new_state._AddConstraint(row, col, n);
+	if (!new_state._AddConstraint(row, col, n)) {
+		return {};
+	}
 	if (!new_state.valid()) return {};
 	return new_state;
 }
 
-int *State::GetGrids() {
-	return (int*)grids_;
+Grids State::GetGrids() {
+	return grids_;
 }
 
 bool State::IsComplete() {

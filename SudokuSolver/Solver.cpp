@@ -11,12 +11,12 @@ Solver::Solver(const std::optional<Board> board, int num) {
 }
 
 void Solver::BackTrack(State s) {
-	int *grids = s.GetGrids();
+	Grids grids = s.GetGrids();
 	if (s.IsComplete()) {
 		Board board;
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
-				board[i][j] = MsgBitPos(grids[i * 9 + j]);
+				board[i][j] = MsgBitPos(grids[i][j]);
 			}
 		}
 		solutions_.push_back(board);
@@ -25,7 +25,7 @@ void Solver::BackTrack(State s) {
 	int min_pos = -1, min_count = 10;
 	vector<int> a;
 	for (int i = 0; i < 9 * 9; i++) {
-		int count = NumOfSetBits(grids[i]);
+		int count = NumOfSetBits(grids[i / 9][i % 9]);
 		if (count == 1) continue;
 		if (count < min_count) {
 			min_count = count;
@@ -36,7 +36,7 @@ void Solver::BackTrack(State s) {
 		}
 	}
 	for (int i = 0; i < 9; i++) {
-		if (grids[min_pos] & (1 << i)) {
+		if (grids[min_pos / 9][min_pos % 9] & (1 << i)) {
 			int row = min_pos / 9, col = min_pos % 9;
 			optional<State> new_state = s.AddConstraint(row, col, i);
 			if (new_state.has_value()) {

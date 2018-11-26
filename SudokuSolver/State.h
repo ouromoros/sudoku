@@ -1,7 +1,8 @@
 #pragma once
 #include <array>
 #include <optional>
-typedef std::array <std::array<int, 3>, 3> Board;
+typedef std::array <std::array<int, 9>, 9> Board;
+typedef std::array <std::array<int, 9>, 9> Grids;
 
 class State
 {
@@ -11,10 +12,10 @@ public:
 	std::optional<State> AddConstraint(int row, int col, int n);
 	void Print();
 	bool IsComplete();
-	int *GetGrids();
+	Grids GetGrids();
 private:
-	int grids_[9][9];
-	void _AddConstraint(int row, int col, int n);
+	Grids grids_;
+	bool _AddConstraint(int row, int col, int n);
 	bool valid();
 };
 
