@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 			cout << "No solution exists!" << endl;
 			return 0;
 		}
-		Board solution = s.GetSolutions[0];
+		Board solution = s.GetSolutions()[0];
 		ofstream fout("sudoku.txt");
 		if (!fout) {
 			cout << "Failed opening file 'sudoku.txt' !" << endl;

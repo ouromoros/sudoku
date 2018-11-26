@@ -11,7 +11,7 @@ State::State(const optional<Board> board) {
 			grids_[i][j] = 0b111111111;
 		}
 	}
-	if (!board.has_value) return;
+	if (!board.has_value()) return;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			if ((*board)[i][j]) {
