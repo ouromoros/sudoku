@@ -37,7 +37,6 @@ const Board s1 = { {
 
 bool Valid(const Board &b);
 bool Full(const Board &b);
-void OutputBoard(ostream &fout, const Board &b);
 bool Same(const Board &b1, const Board &b2);
 
 TEST(StateTest, EmptyState) {
@@ -63,11 +62,10 @@ TEST(StateTest, InvalidStateBeNULL) {
 TEST(SolverTest, RightSolution) {
 	Solver sv1(b1, 2);
 	vector<Board> sl1 = sv1.GetSolutions();
-	OutputBoard(cout, sl1[0]);
+	EXPECT_EQ(sl1.size(), 1);
 	EXPECT_TRUE(Full(sl1[0]));
 	EXPECT_TRUE(Valid(sl1[0]));
 	EXPECT_TRUE(Same(b1, sl1[0]));
-	EXPECT_EQ(sl1.size(), 1);
 	EXPECT_EQ(sl1[0], s1);
 }
 
@@ -79,10 +77,15 @@ TEST(SolverTest, MultipleSolutions) {
 	EXPECT_GT(sl1.size(), 1);
 }
 
-TEST(GeneratorTest, RightNumberOfBoards) {
-	Generator g(1000);
+TEST(GeneratorTest, RightBoards) {
+	Generator g(10000);
 	vector<Board> bs = g.GetBoards();
-	EXPECT_EQ(bs.size(), 1000);
+	EXPECT_EQ(bs.size(), 10000);
+	for (int i = 0; i < 10000; i++) {
+		EXPECT_TRUE(Full(bs[i]));
+		EXPECT_TRUE(Valid(bs[i]));
+		EXPECT_EQ(bs[i][0][0], 6);
+	}
 }
 
 TEST(GeneratorTest, NonRepeatBoards) {
@@ -169,17 +172,4 @@ bool Same(const Board &b1, const Board &b2) {
 		}
 	}
 	return true;
-}
-
-void OutputBoard(ostream &fout, const Board &b) {
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			fout << b[i][j];
-			if (j != 8) {
-				fout << " ";
-			}
-		}
-		fout << endl;
-	}
-	fout << endl;
 }

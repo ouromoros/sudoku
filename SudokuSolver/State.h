@@ -15,7 +15,7 @@ public:
 	Grids GetGrids();
 private:
 	Grids grids_;
-	bool _AddConstraint(int row, int col, int n);
+	void _AddConstraint(int row, int col, int n);
 	bool valid();
 };
 

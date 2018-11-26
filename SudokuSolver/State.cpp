@@ -14,11 +14,11 @@ State::State(const optional<Board> board) {
 	if (!board.has_value()) return;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			if ((*board)[i][j]) {
-				if (!_AddConstraint(i, j, (*board)[i][j])) {
-					throw "Invalid board!";
-				}
+			if (!(*board)[i][j]) continue;
+			if (!(grids_[i][j] & (1 << ((*board)[i][j] - 1)))) {
+				throw "Invalid board!";
 			}
+			_AddConstraint(i, j, (*board)[i][j]);
 		}
 	}
 	if (!valid()) {
@@ -26,20 +26,31 @@ State::State(const optional<Board> board) {
 	}
 }
 
-bool State::_AddConstraint(int row, int col, int n) {
+void State::_AddConstraint(int row, int col, int n) {
 	assert(n >= 1 && n <= 9);
 	int flag = 1 << (n - 1);
-	if (!(grids_[row][col] & flag)) {
-		return false;
-	}
+	assert(grids_[row][col] & flag);
+//	if (!(grids_[row][col] & flag)) {
+//		return false;
+//	}
 	grids_[row][col] = flag;
 	for (int i = 0; i < 9; i++) {
 		if (i == row) continue;
+		int prev_bits = NumOfSetBits(grids_[i][col]);
 		grids_[i][col] &= ~(flag);
+		int after_bits = NumOfSetBits(grids_[i][col]);
+		if (prev_bits > 1 && after_bits == 1) {
+			_AddConstraint(i, col, MsgBitPos(grids_[i][col]));
+		}
 	}
 	for (int i = 0; i < 9; i++) {
 		if (i == col) continue;
+		int prev_bits = NumOfSetBits(grids_[row][i]);
 		grids_[row][i] &= ~(flag);
+		int after_bits = NumOfSetBits(grids_[row][i]);
+		if (prev_bits > 1 && after_bits == 1) {
+			_AddConstraint(row, i, MsgBitPos(grids_[row][i]));
+		}
 	}
 	int row_start, col_start;
 	row_start = row - row % 3;
@@ -47,7 +58,12 @@ bool State::_AddConstraint(int row, int col, int n) {
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			if (row_start + i == row && col_start + j == col) continue;
+			int prev_bits = NumOfSetBits(grids_[row_start + i][col_start + i]);
 			grids_[row_start + i][col_start + j] &= ~(flag);
+			int after_bits = NumOfSetBits(grids_[row_start + i][col_start + i]);
+			if (prev_bits > 1 && after_bits == 1) {
+				_AddConstraint(row_start + i, col_start + i, MsgBitPos(grids_[row_start + i][col_start + i]));
+			}
 		}
 	}
 }
@@ -64,15 +80,14 @@ bool State::valid() {
 }
 
 optional<State> State::AddConstraint(int row, int col, int n) {
+	if (!(grids_[row][col] & (1 << (n - 1)))) return {};
 	State new_state;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			new_state.grids_[i][j] = grids_[i][j];
 		}
 	}
-	if (!new_state._AddConstraint(row, col, n)) {
-		return {};
-	}
+	new_state._AddConstraint(row, col, n);
 	if (!new_state.valid()) return {};
 	return new_state;
 }
