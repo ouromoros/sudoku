@@ -10,7 +10,6 @@
 
 #include "Generator.h"
 #include "Solver.h"
-#include "util.h"
 
 using namespace std;
 
@@ -22,7 +21,6 @@ int main(int argc, char *argv[]) {
 		PrintUsage();
 		return 0;
 	}
-	InitUtilFunctions();
 	string option(argv[1]);
 	if (option == "-c") {
 		int n;
