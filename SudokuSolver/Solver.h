@@ -6,7 +6,7 @@
 class Solver
 {
 public:
-	Solver(const std::optional<Board> board, int num = 1);
+	Solver(const std::optional<Board> board, int num = 1, bool puzzle_mode = true);
 	std::vector<Board> GetSolutions();
 	~Solver();
 private:

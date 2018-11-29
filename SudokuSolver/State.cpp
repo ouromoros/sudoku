@@ -5,7 +5,7 @@
 
 using std::optional;
 
-State::State(const optional<Board> board) {
+State::State(const optional<Board> board, bool puzzle_mode) {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			grids_[i][j] = 0b111111111;
@@ -21,6 +21,7 @@ State::State(const optional<Board> board) {
 			_AddConstraint(i, j, (*board)[i][j]);
 		}
 	}
+	puzzle_mode_ = puzzle_mode;
 	if (!valid()) {
 		throw "Invalid board!";
 	}
@@ -30,25 +31,22 @@ void State::_AddConstraint(int row, int col, int n) {
 	assert(n >= 1 && n <= 9);
 	int flag = 1 << (n - 1);
 	assert(grids_[row][col] & flag);
-//	if (!(grids_[row][col] & flag)) {
-//		return false;
-//	}
 	grids_[row][col] = flag;
 	for (int i = 0; i < 9; i++) {
 		if (i == row) continue;
-		int prev_bits = NumOfSetBits(grids_[i][col]);
+		int prev = grids_[i][col];
 		grids_[i][col] &= ~(flag);
 		int after_bits = NumOfSetBits(grids_[i][col]);
-		if (prev_bits > 1 && after_bits == 1) {
+		if (prev != grids_[i][col] && after_bits == 1) {
 			_AddConstraint(i, col, MsgBitPos(grids_[i][col]));
 		}
 	}
 	for (int i = 0; i < 9; i++) {
 		if (i == col) continue;
-		int prev_bits = NumOfSetBits(grids_[row][i]);
+		int prev = grids_[row][i];
 		grids_[row][i] &= ~(flag);
 		int after_bits = NumOfSetBits(grids_[row][i]);
-		if (prev_bits > 1 && after_bits == 1) {
+		if (prev != grids_[row][i] && after_bits == 1) {
 			_AddConstraint(row, i, MsgBitPos(grids_[row][i]));
 		}
 	}
@@ -58,21 +56,122 @@ void State::_AddConstraint(int row, int col, int n) {
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			if (row_start + i == row && col_start + j == col) continue;
-			int prev_bits = NumOfSetBits(grids_[row_start + i][col_start + i]);
+			int prev = grids_[row_start + i][col_start + j];
 			grids_[row_start + i][col_start + j] &= ~(flag);
 			int after_bits = NumOfSetBits(grids_[row_start + i][col_start + i]);
-			if (prev_bits > 1 && after_bits == 1) {
+			if (prev != grids_[row_start + i][col_start + j] && after_bits == 1) {
 				_AddConstraint(row_start + i, col_start + i, MsgBitPos(grids_[row_start + i][col_start + i]));
 			}
 		}
 	}
 }
 
+
+bool State::TryAddMoreConstraint() {
+	for (int i = 0; i < 9; i++) {
+		int pos_x[9];
+		int pos_y[9];
+		int count[9] = {};
+		for (int j = 0; j < 9; j++) {
+			for (int k = 0; k < 9; k++) {
+				if (NumOfSetBits(grids_[i][j]) <= 1) continue;
+				if (grids_[i][j] & (1 << k)) {
+					count[k]++;
+					pos_x[k] = i;
+					pos_y[k] = j;
+				}
+			}
+		}
+		for (int i = 0; i < 9; i++) {
+			if (count[i] == 1) {
+				_AddConstraint(pos_x[i], pos_y[i], i + 1);
+				return true;
+			}
+		}
+	}
+	for (int i = 0; i < 9; i++) {
+		int pos_x[9];
+		int pos_y[9];
+		int count[9] = {};
+		for (int j = 0; j < 9; j++) {
+			for (int k = 0; k < 9; k++) {
+				if (grids_[j][i] & (1 << k)) {
+					if (NumOfSetBits(grids_[j][i]) <= 1) continue;
+					count[k]++;
+					pos_x[k] = j;
+					pos_y[k] = i;
+				}
+			}
+		}
+		for (int i = 0; i < 9; i++) {
+			if (count[i] == 1) {
+				_AddConstraint(pos_x[i], pos_y[i], i + 1);
+				return true;
+			}
+		}
+	}
+	for (int i = 0; i < 9; i+=3) {
+		for (int j = 0; j < 9; j+=3) {
+			int pos_x[9];
+			int pos_y[9];
+			int count[9] = {};
+			for (int k = 0; k < 3; k++) {
+				for (int l = 0; l < 3; l++) {
+					int x = i + k;
+					int y = j + l;
+					if (NumOfSetBits(grids_[x][y]) <= 1) continue;
+					for (int k = 0; k < 9; k++) {
+						if (grids_[x][y] & (1 << k)) {
+							count[k]++;
+							pos_x[k] = x;
+							pos_y[k] = y;
+						}
+					}
+				}
+			}
+			for (int i = 0; i < 9; i++) {
+				if (count[i] == 1) {
+					_AddConstraint(pos_x[i], pos_y[i], i + 1);
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool State::valid() {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			if (!grids_[i][j]) {
-				return false;
+			if (!grids_[i][j]) return false;
+		}
+	}
+	if (puzzle_mode_) {
+		for (int i = 0; i < 9; i++) {
+			int p = 0;
+			for (int j = 0; j < 9; j++) {
+				p |= grids_[j][i];
+			}
+			if (p != 0b111111111) return false;
+		}
+		for (int i = 0; i < 9; i++) {
+			int p = 0;
+			for (int j = 0; j < 9; j++) {
+				p |= grids_[i][j];
+			}
+			if (p != 0b111111111) return false;
+		}
+		for (int i = 0; i < 9; i += 3) {
+			for (int j = 0; j < 9; j += 3) {
+				int p = 0;
+				for (int k = 0; k < 3; k++) {
+					for (int l = 0; l < 3; l++) {
+						int x = i + k;
+						int y = j + l;
+						p |= grids_[x][y];
+					}
+				}
+				if (p != 0b111111111) return false;
 			}
 		}
 	}
@@ -87,7 +186,11 @@ optional<State> State::AddConstraint(int row, int col, int n) {
 			new_state.grids_[i][j] = grids_[i][j];
 		}
 	}
+	new_state.puzzle_mode_ = puzzle_mode_;
 	new_state._AddConstraint(row, col, n);
+	if (puzzle_mode_) {
+		while (TryAddMoreConstraint());
+	}
 	if (!new_state.valid()) return {};
 	return new_state;
 }

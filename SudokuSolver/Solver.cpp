@@ -4,8 +4,8 @@
 using std::vector;
 using std::optional;
 
-Solver::Solver(const std::optional<Board> board, int num) {
-	State init_state = State(board);
+Solver::Solver(const std::optional<Board> board, int num, bool puzzle_mode) {
+	State init_state = State(board, puzzle_mode);
 	target = num;
 	BackTrack(init_state);
 }

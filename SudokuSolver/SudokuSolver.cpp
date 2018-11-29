@@ -10,6 +10,7 @@
 
 #include "Generator.h"
 #include "Solver.h"
+#include "util.h"
 
 using namespace std;
 
@@ -21,6 +22,7 @@ int main(int argc, char *argv[]) {
 		PrintUsage();
 		return 0;
 	}
+	InitUtilFunctions();
 	string option(argv[1]);
 	if (option == "-c") {
 		int n;
@@ -48,28 +50,34 @@ int main(int argc, char *argv[]) {
 			cout << "Failed opening file '" << argv[2] << "' !" << endl;
 			return 0;
 		}
-		Board b;
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				fin >> b[i][j];
-				if (b[i][j] < 0 || b[i][j] > 9 || fin.fail()) {
-					cout << "Invalid Sudoku problem!" << endl;
-					return 0;
+		while (true) {
+			Board b;
+			for (int i = 0; i < 9; i++) {
+				for (int j = 0; j < 9; j++) {
+					fin >> b[i][j];
+					if (fin.eof()) {
+						cout << "Solved all puzzles" << endl;
+						return 0;
+					}
+					if (b[i][j] < 0 || b[i][j] > 9 || fin.fail()) {
+						cout << "Invalid Sudoku problem!" << endl;
+						return 0;
+					}
 				}
 			}
+			Solver s(b);
+			if (s.GetSolutions().empty()) {
+				cout << "No solution exists!" << endl;
+				return 0;
+			}
+			Board solution = s.GetSolutions()[0];
+			ofstream fout("sudoku.txt");
+			if (!fout) {
+				cout << "Failed opening file 'sudoku.txt' !" << endl;
+				return 0;
+			}
+			OutputBoard(fout, solution);
 		}
-		Solver s(b);
-		if (s.GetSolutions().empty()) {
-			cout << "No solution exists!" << endl;
-			return 0;
-		}
-		Board solution = s.GetSolutions()[0];
-		ofstream fout("sudoku.txt");
-		if (!fout) {
-			cout << "Failed opening file 'sudoku.txt' !" << endl;
-			return 0;
-		}
-		OutputBoard(fout, solution);
 	}
 	else {
 		PrintUsage();
