@@ -71,10 +71,9 @@ bool State::TryAddMoreConstraint() {
 	for (int i = 0; i < 9; i++) {
 		int pos_x[9];
 		int pos_y[9];
-		int count[9] = {};
+		int count[9] = {0,0,0,0,0,0,0,0,0};
 		for (int j = 0; j < 9; j++) {
 			for (int k = 0; k < 9; k++) {
-				if (NumOfSetBits(grids_[i][j]) <= 1) continue;
 				if (grids_[i][j] & (1 << k)) {
 					count[k]++;
 					pos_x[k] = i;
@@ -82,9 +81,9 @@ bool State::TryAddMoreConstraint() {
 				}
 			}
 		}
-		for (int i = 0; i < 9; i++) {
-			if (count[i] == 1) {
-				_AddConstraint(pos_x[i], pos_y[i], i + 1);
+		for (int k = 0; k < 9; k++) {
+			if (count[k] == 1 && NumOfSetBits(grids_[pos_x[k]][pos_y[k]]) != 1) {
+				_AddConstraint(pos_x[k], pos_y[k], k + 1);
 				return true;
 			}
 		}
@@ -92,20 +91,20 @@ bool State::TryAddMoreConstraint() {
 	for (int i = 0; i < 9; i++) {
 		int pos_x[9];
 		int pos_y[9];
-		int count[9] = {};
+		int count[9] = {0,0,0,0,0,0,0,0,0};
 		for (int j = 0; j < 9; j++) {
 			for (int k = 0; k < 9; k++) {
+				if (NumOfSetBits(grids_[j][i]) <= 1) continue;
 				if (grids_[j][i] & (1 << k)) {
-					if (NumOfSetBits(grids_[j][i]) <= 1) continue;
 					count[k]++;
 					pos_x[k] = j;
 					pos_y[k] = i;
 				}
 			}
 		}
-		for (int i = 0; i < 9; i++) {
-			if (count[i] == 1) {
-				_AddConstraint(pos_x[i], pos_y[i], i + 1);
+		for (int k = 0; k < 9; k++) {
+			if (count[k] == 1 && NumOfSetBits(grids_[pos_x[k]][pos_y[k]]) != 1) {
+				_AddConstraint(pos_x[k], pos_y[k], k + 1);
 				return true;
 			}
 		}
@@ -114,24 +113,24 @@ bool State::TryAddMoreConstraint() {
 		for (int j = 0; j < 9; j+=3) {
 			int pos_x[9];
 			int pos_y[9];
-			int count[9] = {};
+			int count[9] = {0,0,0,0,0,0,0,0,0};
 			for (int k = 0; k < 3; k++) {
 				for (int l = 0; l < 3; l++) {
 					int x = i + k;
 					int y = j + l;
 					if (NumOfSetBits(grids_[x][y]) <= 1) continue;
-					for (int k = 0; k < 9; k++) {
-						if (grids_[x][y] & (1 << k)) {
-							count[k]++;
-							pos_x[k] = x;
-							pos_y[k] = y;
+					for (int m = 0; m < 9; m++) {
+						if (grids_[x][y] & (1 << m)) {
+							count[m]++;
+							pos_x[m] = x;
+							pos_y[m] = y;
 						}
 					}
 				}
 			}
-			for (int i = 0; i < 9; i++) {
-				if (count[i] == 1) {
-					_AddConstraint(pos_x[i], pos_y[i], i + 1);
+			for (int k = 0; k < 9; k++) {
+				if (count[k] == 1 && NumOfSetBits(grids_[pos_x[k]][pos_y[k]]) != 1) {
+					_AddConstraint(pos_x[k], pos_y[k], k + 1);
 					return true;
 				}
 			}
@@ -188,9 +187,9 @@ optional<State> State::AddConstraint(int row, int col, int n) {
 	}
 	new_state.puzzle_mode_ = puzzle_mode_;
 	new_state._AddConstraint(row, col, n);
-	if (puzzle_mode_) {
-		while (TryAddMoreConstraint());
-	}
+	//if (puzzle_mode_) {
+	//	while(new_state.TryAddMoreConstraint());
+	//}
 	if (!new_state.valid()) return {};
 	return new_state;
 }

@@ -31,13 +31,13 @@ int main(int argc, char *argv[]) {
 			cout << "'" << argv[2] << "' is not a valid number!";
 			return 0;
 		}
-		Generator g(n);
-		vector<Board> boards = g.GetBoards();
-		ofstream fout("sudoku.txt");
+		ofstream fout("sudoku.txt", ios::out | ios::trunc);
 		if (!fout) {
 			cout << "Failed opening file 'sudoku.txt' !" << endl;
 			return 0;
 		}
+		Generator g(n);
+		vector<Board> boards = g.GetBoards();
 		for (int i = 0; i < n; i++) {
 			OutputBoard(fout, boards[i]);
 		}
@@ -46,6 +46,11 @@ int main(int argc, char *argv[]) {
 		ifstream fin(argv[2]);
 		if (!fin) {
 			cout << "Failed opening file '" << argv[2] << "' !" << endl;
+			return 0;
+		}
+		ofstream fout("sudoku.txt", ios::out | ios::trunc);
+		if (!fout) {
+			cout << "Failed opening file 'sudoku.txt' !" << endl;
 			return 0;
 		}
 		while (true) {
@@ -69,11 +74,6 @@ int main(int argc, char *argv[]) {
 				return 0;
 			}
 			Board solution = s.GetSolutions()[0];
-			ofstream fout("sudoku.txt");
-			if (!fout) {
-				cout << "Failed opening file 'sudoku.txt' !" << endl;
-				return 0;
-			}
 			OutputBoard(fout, solution);
 		}
 	}
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 void PrintUsage() {
 	cout << "Usage:" << endl;
 	cout << "  ./sudoku.exe -c <number_of_solutions>" << endl;
-	cout << "  ./sudoku.exe -s <path_of_output_file>" << endl;
+	cout << "  ./sudoku.exe -s <path_of_input_file>" << endl;
 }
 
 void OutputBoard(ofstream &fout, const Board &b) {
