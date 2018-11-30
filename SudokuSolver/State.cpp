@@ -94,7 +94,6 @@ bool State::TryAddMoreConstraint() {
 		int count[9] = {0,0,0,0,0,0,0,0,0};
 		for (int j = 0; j < 9; j++) {
 			for (int k = 0; k < 9; k++) {
-				if (NumOfSetBits(grids_[j][i]) <= 1) continue;
 				if (grids_[j][i] & (1 << k)) {
 					count[k]++;
 					pos_x[k] = j;
@@ -118,7 +117,6 @@ bool State::TryAddMoreConstraint() {
 				for (int l = 0; l < 3; l++) {
 					int x = i + k;
 					int y = j + l;
-					if (NumOfSetBits(grids_[x][y]) <= 1) continue;
 					for (int m = 0; m < 9; m++) {
 						if (grids_[x][y] & (1 << m)) {
 							count[m]++;
@@ -187,9 +185,9 @@ optional<State> State::AddConstraint(int row, int col, int n) {
 	}
 	new_state.puzzle_mode_ = puzzle_mode_;
 	new_state._AddConstraint(row, col, n);
-	//if (puzzle_mode_) {
-	//	while(new_state.TryAddMoreConstraint());
-	//}
+	if (puzzle_mode_) {
+		while(new_state.TryAddMoreConstraint());
+	}
 	if (!new_state.valid()) return {};
 	return new_state;
 }
