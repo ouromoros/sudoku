@@ -91,15 +91,19 @@ void PrintUsage() {
 }
 
 void OutputBoard(ofstream &fout, const Board &b) {
+	char s[200];
+	int si = 0;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			fout << b[i][j];
+			s[si++] = b[i][j];
 			if (j != 8) {
-				fout << " ";
+				s[si++] = ' ';
 			}
 		}
-		fout << endl;
+		s[si++] = '\n';
 	}
-	fout << endl;
+	s[si++] = '\n';
+	s[si] = '\0';
+	fout << s;
 }
 
