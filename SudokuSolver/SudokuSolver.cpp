@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <stdio.h>
 #include <exception>
 #include <vector>
 
@@ -14,7 +15,7 @@
 using namespace std;
 
 void PrintUsage();
-void OutputBoard(ofstream &fout, const Board &b);
+void OutputBoard(FILE *fout, const Board &b);
 
 int main(int argc, char *argv[]) {
 	if (argc != 3) {
@@ -31,8 +32,9 @@ int main(int argc, char *argv[]) {
 			cout << "'" << argv[2] << "' is not a valid number!";
 			return 0;
 		}
-		ofstream fout("sudoku.txt", ios::out | ios::trunc);
-		if (!fout) {
+		FILE *fout;
+		fopen_s(&fout, "sudoku.txt", "w");
+		if (fout == NULL) {
 			cout << "Failed opening file 'sudoku.txt' !" << endl;
 			return 0;
 		}
@@ -41,6 +43,7 @@ int main(int argc, char *argv[]) {
 		for (int i = 0; i < n; i++) {
 			OutputBoard(fout, boards[i]);
 		}
+		fclose(fout);
 	}
 	else if (option == "-s") {
 		ifstream fin(argv[2]);
@@ -48,8 +51,9 @@ int main(int argc, char *argv[]) {
 			cout << "Failed opening file '" << argv[2] << "' !" << endl;
 			return 0;
 		}
-		ofstream fout("sudoku.txt", ios::out | ios::trunc);
-		if (!fout) {
+		FILE *fout;
+		fopen_s(&fout, "sudoku.txt", "w");
+		if (fout == NULL) {
 			cout << "Failed opening file 'sudoku.txt' !" << endl;
 			return 0;
 		}
@@ -76,6 +80,7 @@ int main(int argc, char *argv[]) {
 			Board solution = s.GetSolutions()[0];
 			OutputBoard(fout, solution);
 		}
+		fclose(fout);
 	}
 	else {
 		PrintUsage();
@@ -90,7 +95,7 @@ void PrintUsage() {
 	cout << "  ./sudoku.exe -s <path_of_input_file>" << endl;
 }
 
-void OutputBoard(ofstream &fout, const Board &b) {
+void OutputBoard(FILE* fout, const Board &b) {
 	char s[200];
 	int si = 0;
 	for (int i = 0; i < 9; i++) {
@@ -104,6 +109,6 @@ void OutputBoard(ofstream &fout, const Board &b) {
 	}
 	s[si++] = '\n';
 	s[si] = '\0';
-	fout << s;
+	fputs(s, fout);
 }
 
