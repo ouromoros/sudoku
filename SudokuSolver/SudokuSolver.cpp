@@ -18,12 +18,14 @@ void PrintUsage();
 void OutputBoard(FILE *fout, const Board &b);
 
 int main(int argc, char *argv[]) {
+	// 检查参数是否完整
 	if (argc != 3) {
 		PrintUsage();
 		return 0;
 	}
 	string option(argv[1]);
 	if (option == "-c") {
+		// 尝试解析参数
 		int n;
 		try {
 			n = stoi(argv[2]);
@@ -38,6 +40,7 @@ int main(int argc, char *argv[]) {
 			cout << "Failed opening file 'sudoku.txt' !" << endl;
 			return 0;
 		}
+		// 调用Generator
 		Generator g(n);
 		vector<Board> boards = g.GetBoards();
 		for (int i = 0; i < n; i++) {
@@ -58,6 +61,7 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		while (true) {
+			// 不停读取题目并求解
 			Board b;
 			for (int i = 0; i < 9; i++) {
 				for (int j = 0; j < 9; j++) {
@@ -74,15 +78,18 @@ int main(int argc, char *argv[]) {
 			}
 			Solver s(b);
 			if (s.GetSolutions().empty()) {
+				// 该题目没有可行解，输出错误
 				cout << "No solution exists!" << endl;
 				return 0;
 			}
 			Board solution = s.GetSolutions()[0];
+			// 打印解到文件
 			OutputBoard(fout, solution);
 		}
 		fclose(fout);
 	}
 	else {
+		// 错误参数，推出
 		PrintUsage();
 		return 0;
 	}
@@ -96,6 +103,7 @@ void PrintUsage() {
 }
 
 void OutputBoard(FILE* fout, const Board &b) {
+	// 输出局面到文件fout
 	char s[200];
 	int si = 0;
 	for (int i = 0; i < 9; i++) {

@@ -6,16 +6,19 @@
 using std::optional;
 
 State::State(const optional<Board> board, bool puzzle_mode) {
+	// 初始化grids_
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			grids_[i][j] = 0b111111111;
 		}
 	}
 	if (!board.has_value()) return;
+	// 根据初始局面进行更改
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			if (!(*board)[i][j]) continue;
 			if (!(grids_[i][j] & (1 << ((*board)[i][j] - 1)))) {
+				// 若初始局面无效，则抛出异常
 				throw "Invalid board!";
 			}
 			_AddConstraint(i, j, (*board)[i][j]);
@@ -28,10 +31,12 @@ State::State(const optional<Board> board, bool puzzle_mode) {
 }
 
 void State::_AddConstraint(int row, int col, int n) {
+	// 增加一个Constraint
 	assert(n >= 1 && n <= 9);
 	int flag = 1 << (n - 1);
 	assert(grids_[row][col] & flag);
 	grids_[row][col] = flag;
+	// 更改对应行上格子的状态
 	for (int i = 0; i < 9; i++) {
 		if (i == row) continue;
 		int prev = grids_[i][col];
@@ -41,6 +46,7 @@ void State::_AddConstraint(int row, int col, int n) {
 			_AddConstraint(i, col, MsgBitPos(grids_[i][col]));
 		}
 	}
+	// 更改对应列上格子的状态
 	for (int i = 0; i < 9; i++) {
 		if (i == col) continue;
 		int prev = grids_[row][i];
@@ -50,6 +56,7 @@ void State::_AddConstraint(int row, int col, int n) {
 			_AddConstraint(row, i, MsgBitPos(grids_[row][i]));
 		}
 	}
+	// 更改对应九宫格中格子的状态
 	int row_start, col_start;
 	row_start = row - row % 3;
 	col_start = col - col % 3;
@@ -68,6 +75,7 @@ void State::_AddConstraint(int row, int col, int n) {
 
 
 bool State::TryAddMoreConstraint() {
+	// 尝试根据规则推导出更多Constraint
 	for (int i = 0; i < 9; i++) {
 		int pos_x[9];
 		int pos_y[9];
@@ -138,44 +146,48 @@ bool State::TryAddMoreConstraint() {
 }
 
 bool State::valid() {
+	// 当前局面是否是一个有效的局面
+	// 查看是否有格子中没有可以填入的数字
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			if (!grids_[i][j]) return false;
 		}
 	}
-	if (puzzle_mode_) {
-		for (int i = 0; i < 9; i++) {
-			int p = 0;
-			for (int j = 0; j < 9; j++) {
-				p |= grids_[j][i];
-			}
-			if (p != 0b111111111) return false;
+	// 检查每行都能填入所有数字
+	for (int i = 0; i < 9; i++) {
+		int p = 0;
+		for (int j = 0; j < 9; j++) {
+			p |= grids_[j][i];
 		}
-		for (int i = 0; i < 9; i++) {
-			int p = 0;
-			for (int j = 0; j < 9; j++) {
-				p |= grids_[i][j];
-			}
-			if (p != 0b111111111) return false;
+		if (p != 0b111111111) return false;
+	}
+	// 检查每列都能填入所有数字
+	for (int i = 0; i < 9; i++) {
+		int p = 0;
+		for (int j = 0; j < 9; j++) {
+			p |= grids_[i][j];
 		}
-		for (int i = 0; i < 9; i += 3) {
-			for (int j = 0; j < 9; j += 3) {
-				int p = 0;
-				for (int k = 0; k < 3; k++) {
-					for (int l = 0; l < 3; l++) {
-						int x = i + k;
-						int y = j + l;
-						p |= grids_[x][y];
-					}
+		if (p != 0b111111111) return false;
+	}
+	// 检查每个九宫格中都能填入所有数字
+	for (int i = 0; i < 9; i += 3) {
+		for (int j = 0; j < 9; j += 3) {
+			int p = 0;
+			for (int k = 0; k < 3; k++) {
+				for (int l = 0; l < 3; l++) {
+					int x = i + k;
+					int y = j + l;
+					p |= grids_[x][y];
 				}
-				if (p != 0b111111111) return false;
 			}
+			if (p != 0b111111111) return false;
 		}
 	}
 	return true;
 }
 
 optional<State> State::AddConstraint(int row, int col, int n) {
+	// 返回增加一个Constraint得到的局面
 	if (!(grids_[row][col] & (1 << (n - 1)))) return {};
 	State new_state;
 	for (int i = 0; i < 9; i++) {
@@ -193,10 +205,12 @@ optional<State> State::AddConstraint(int row, int col, int n) {
 }
 
 Grids State::GetGrids() {
+	// 返回内部的状态
 	return grids_;
 }
 
 bool State::IsComplete() {
+	// 是否所有数字都已经填入
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			if (NumOfSetBits(grids_[i][j]) != 1) {
